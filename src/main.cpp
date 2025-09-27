@@ -162,6 +162,24 @@ void main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+	// Ones below are for the animated triangle
+    unsigned int vertexShaderAnimated = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderAnimated, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShaderAnimated);
+
+    unsigned int fragmentShaderAnimated = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderAnimated, 1, &fragmentShaderSourceCHANGING, NULL);
+    glCompileShader(fragmentShaderAnimated);
+
+    unsigned int shaderProgramAnimated = glCreateProgram();
+    glAttachShader(shaderProgramAnimated, vertexShaderAnimated);
+    glAttachShader(shaderProgramAnimated, fragmentShaderAnimated);
+    glLinkProgram(shaderProgramAnimated);
+
+    GLint timeLocAnimated = glGetUniformLocation(shaderProgramAnimated, "uTime");
+
+    glDeleteShader(vertexShaderAnimated);
+    glDeleteShader(fragmentShaderAnimated);
     // Main render loop
     while (!WindowShouldClose())
     {
@@ -189,6 +207,8 @@ void main()
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Draw Color Changing triangle
+        glUseProgram(shaderProgramAnimated);
+        glUniform1f(timeLocAnimated, tt); // <-- must use timeLocAnimated
         glBindVertexArray(CCVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -207,6 +227,7 @@ void main()
     glDeleteBuffers(1, &CCVBO);
 
     glDeleteProgram(shaderProgram);
+    glDeleteProgram(shaderProgramAnimated);
 
     DestroyWindow();
     return 0;
