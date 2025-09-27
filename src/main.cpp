@@ -13,7 +13,7 @@ int main()
         float g = 136.0f / 255.0f;
         float b = 190.0f / 255.0f;
         float a = 1.0f;
-
+        
         /* Render here */
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
