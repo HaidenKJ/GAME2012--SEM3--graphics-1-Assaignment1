@@ -121,9 +121,9 @@ int main()
     // Rotating triangle vertex array
     float RotatingVertices[] = {
         // position.x, position.y, position.z,   r,   g,   b
-         -0.3f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f, // top - magenta
-         -0.2f,  0.3f, 0.0f,   0.0f, 1.0f, 1.0f, // bottom left - cyan
-         -0.4f,  0.3f, 0.0f,   1.0f, 1.0f, 0.0f  // bottom right - yellow
+         -0.3f,  0.7f, 0.0f,   1.0f, 0.0f, 1.0f, // top - magenta
+         -0.2f,  0.5f, 0.0f,   0.0f, 1.0f, 1.0f, // bottom left - cyan
+         -0.4f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f  // bottom right - yellow
     };
 
     unsigned int rotatingVAO, rotatingVBO;
