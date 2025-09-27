@@ -71,9 +71,9 @@ int main()
     // A triangle who’s colour changes over time (using uniforms).
     float ColorChangingVertices[] = {
         //  position.x, position.y, position.z,   r,   g,   b
-        -0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
-        -0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - green
-        -0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom right - blue
+        -0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, 
+        -0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, 
+        -0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  
     };
 
     unsigned int CCVAO, CCVBO;
@@ -112,6 +112,30 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // Rotating triangle vertex array
+    float RotatingVertices[] = {
+        // position.x, position.y, position.z,   r,   g,   b
+         -0.3f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f, // top - magenta
+         -0.2f,  0.3f, 0.0f,   0.0f, 1.0f, 1.0f, // bottom left - cyan
+         -0.4f,  0.3f, 0.0f,   1.0f, 1.0f, 0.0f  // bottom right - yellow
+    };
+
+    unsigned int rotatingVAO, rotatingVBO;
+    glGenVertexArrays(1, &rotatingVAO);
+    glGenBuffers(1, &rotatingVBO);
+
+    glBindVertexArray(rotatingVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, rotatingVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(RotatingVertices), RotatingVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -279,30 +303,6 @@ int main()
     glDeleteShader(fragmentShaderAnimated);
     glDeleteShader(vertexShaderRotating);
     glDeleteShader(fragmentShaderRotating);
-
-    // Rotating triangle vertex array
-    float RotatingVertices[] = {
-        // position.x, position.y, position.z,   r,   g,   b
-         -0.3f,  0.4f, 0.0f,   1.0f, 0.0f, 1.0f, // top - magenta
-         -0.2f,  0.2f, 0.0f,   0.0f, 1.0f, 1.0f, // bottom left - cyan
-         -0.4f,  0.2f, 0.0f,   1.0f, 1.0f, 0.0f  // bottom right - yellow
-    };
-
-    unsigned int rotatingVAO, rotatingVBO;
-    glGenVertexArrays(1, &rotatingVAO);
-    glGenBuffers(1, &rotatingVBO);
-
-    glBindVertexArray(rotatingVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, rotatingVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(RotatingVertices), RotatingVertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 
     // Main render loop
     while (!WindowShouldClose())
