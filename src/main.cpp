@@ -123,6 +123,24 @@ int main()
     }
 )"; // i am not going to remember any of this when I wake up tomorrow, but at least it works now.... I think
 
+    const char* fragmentShaderSourceCHANGING = R"(
+#version 330 core
+in vec3 vertexColor;
+out vec4 FragColor;
+
+uniform float uTime; // the time uniform passed from C++
+
+void main()
+{
+    // Animate colors using time
+    vec3 animatedColor;
+    animatedColor.r = abs(sin(uTime + vertexColor.r));
+    animatedColor.g = abs(sin(uTime + vertexColor.g));
+    animatedColor.b = abs(sin(uTime + vertexColor.b));
+
+    FragColor = vec4(animatedColor, 1.0);
+}
+)";
     // Compile Vertex Shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -184,6 +202,9 @@ int main()
 
     glDeleteVertexArrays(1, &rainbowVAO);
     glDeleteBuffers(1, &rainbowVBO);
+
+    glDeleteVertexArrays(1, &CCVAO);
+    glDeleteBuffers(1, &CCVBO);
 
     glDeleteProgram(shaderProgram);
 
