@@ -1,10 +1,12 @@
 #include "Window.h"
 #include <glad/glad.h>
 #include <iostream>
+#include <chrono> // That is a cool name, I like it
 
 int main()
 {
     CreateWindow(800, 800, "Graphics 1 - Assignment 1");
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     //// WHITE TRIANGLE - original positions (kept intact)
     //float vertices[] = {
@@ -41,7 +43,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // RAINBOW TRIANGLE - position + color 
+    // A rainbow triangle (using vertex colour attributes).
     float rainbowVertices[] = {
         //  position.x, position.y, position.z,   r,   g,   b
          0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
@@ -56,6 +58,33 @@ int main()
     glBindVertexArray(rainbowVAO);
     glBindBuffer(GL_ARRAY_BUFFER, rainbowVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(rainbowVertices), rainbowVertices, GL_STATIC_DRAW);
+
+    // position attribute (location = 0)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // color attribute (location = 1)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // A triangle who’s colour changes over time (using uniforms).
+    float ColorChangingVertices[] = {
+        //  position.x, position.y, position.z,   r,   g,   b
+         -0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
+         -0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - greeen
+         -0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom righ - blue
+    };
+
+    unsigned int CCVAO, CCVBO;
+    glGenVertexArrays(1, &CCVAO);
+    glGenBuffers(1, &CCVBO);
+
+    glBindVertexArray(CCVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, CCVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ColorChangingVertices), ColorChangingVertices, GL_STATIC_DRAW);
 
     // position attribute (location = 0)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -109,6 +138,7 @@ int main()
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
+    GLint timeLoc = glGetUniformLocation(shaderProgram, "uTime");
 
     // Clean up shaders
     glDeleteShader(vertexShader);
@@ -117,6 +147,9 @@ int main()
     // Main render loop
     while (!WindowShouldClose())
     {
+        auto now = std::chrono::high_resolution_clock::now();
+        float tt = std::chrono::duration<float>(now - startTime).count();
+
         // Background color
         float r = 239.0f / 255.0f;
         float g = 136.0f / 255.0f;
@@ -126,7 +159,8 @@ int main()
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
+        glUseProgram(shaderProgram); // must use program before setting uniforms
+        glUniform1f(timeLoc, tt);
 
         // Draw white triangle
         glBindVertexArray(whiteVAO);
@@ -134,6 +168,10 @@ int main()
 
         // Draw rainbow triangle
         glBindVertexArray(rainbowVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // Draw Color Changing triangle
+        glBindVertexArray(CCVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
