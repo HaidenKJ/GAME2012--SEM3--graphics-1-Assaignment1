@@ -97,6 +97,33 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    //  A triangle that translates back and forth from x = 1 to x = -1.
+    float TranslatingVertices[] = {
+        //  position.x, position.y, position.z,   r,   g,   b
+     0.0f, -0.2f, 0.0f,  2.0f, 2.0f, 0.0f, // top
+    -0.1f, -0.4f, 0.0f,  2.0f, 2.0f, 0.0f, // bottom left
+     0.1f, -0.4f, 0.0f,  2.0f, 2.0f, 1.0f  // bottom right
+    };
+
+    unsigned int movingVAO, movingVBO;
+    glGenVertexArrays(1, &movingVAO);
+    glGenBuffers(1, &movingVBO);
+
+    glBindVertexArray(movingVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, movingVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TranslatingVertices), TranslatingVertices, GL_STATIC_DRAW);
+
+    // position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     // ------------------------------
 
     const char* vertexShaderSource = R"(
@@ -206,6 +233,10 @@ void main()
         glBindVertexArray(rainbowVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        // Draw moving triangle
+        glBindVertexArray(movingVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         // Draw Color Changing triangle
         glUseProgram(shaderProgramAnimated);
         glUniform1f(timeLocAnimated, tt); // <-- must use timeLocAnimated
@@ -225,6 +256,9 @@ void main()
 
     glDeleteVertexArrays(1, &CCVAO);
     glDeleteBuffers(1, &CCVBO);
+
+    glDeleteVertexArrays(1, &movingVAO);
+    glDeleteBuffers(1, &movingVBO);
 
     glDeleteProgram(shaderProgram);
     glDeleteProgram(shaderProgramAnimated);
