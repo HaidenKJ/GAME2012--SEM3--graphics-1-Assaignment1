@@ -15,7 +15,7 @@ int main()
     //     0.1f, -0.1f, 0.0f   // bottom right
     //};
 
-	// WHITE TRIANGLE - position + color 
+    // WHITE TRIANGLE - position + color 
     float whiteVerticesWithColor[] = {
         // pos.x, pos.y, pos.z,   r,   g,   b
          0.0f,  0.1f, 0.0f,     1.0f,1.0f,1.0f,
@@ -100,9 +100,9 @@ int main()
     //  A triangle that translates back and forth from x = 1 to x = -1.
     float TranslatingVertices[] = {
         //  position.x, position.y, position.z,   r,   g,   b
-     0.0f, -0.2f, 0.0f,  2.0f, 2.0f, 0.0f, // top
-    -0.1f, -0.4f, 0.0f,  2.0f, 2.0f, 0.0f, // bottom left
-     0.1f, -0.4f, 0.0f,  2.0f, 2.0f, 1.0f  // bottom right
+     0.0f, -0.2f, 0.0f,  1.0f, 1.0f, 0.0f, // top
+    -0.1f, -0.4f, 0.0f,  1.0f, 1.0f, 0.0f, // bottom left
+     0.1f, -0.4f, 0.0f,  1.0f, 1.0f, 1.0f  // bottom right
     };
 
     unsigned int movingVAO, movingVBO;
@@ -148,26 +148,43 @@ int main()
     {
         FragColor = vec4(vertexColor, 1.0);
     }
-)"; // i am not going to remember any of this when I wake up tomorrow, but at least it works now.... I think
+)";
 
     const char* fragmentShaderSourceCHANGING = R"(
-#version 330 core
-in vec3 vertexColor;
-out vec4 FragColor;
+    #version 330 core
+    in vec3 vertexColor;
+    out vec4 FragColor;
 
-uniform float uTime; // the time uniform passed from C++
+    uniform float uTime; // the time uniform passed from C++
 
-void main()
-{
-    // Animate colors using time
-    vec3 animatedColor;
-    animatedColor.r = abs(sin(uTime + vertexColor.r));
-    animatedColor.g = abs(sin(uTime + vertexColor.g));
-    animatedColor.b = abs(sin(uTime + vertexColor.b));
+    void main()
+    {
+        // Animate colors using time
+        vec3 animatedColor;
+        animatedColor.r = abs(sin(uTime + vertexColor.r));
+        animatedColor.g = abs(sin(uTime + vertexColor.g));
+        animatedColor.b = abs(sin(uTime + vertexColor.b));
 
-    FragColor = vec4(animatedColor, 1.0);
-}
+        FragColor = vec4(animatedColor, 1.0);
+    }
 )";
+
+    const char* vertexShaderSourceMOVING = R"(
+    #version 330 core
+    layout(location = 0) in vec3 aPos;
+    layout(location = 1) in vec3 aColor;
+
+    out vec3 vertexColor;
+
+    uniform vec2 uTranslation; // x and y offset
+
+    void main()
+    {
+        gl_Position = vec4(aPos.xy + uTranslation, aPos.z, 1.0);
+        vertexColor = aColor;
+    }
+)";
+
     // Compile Vertex Shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -183,13 +200,12 @@ void main()
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    GLint timeLoc = glGetUniformLocation(shaderProgram, "uTime");
 
     // Clean up shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-	// Ones below are for the animated triangle
+    // Ones below are for the animated triangle
     unsigned int vertexShaderAnimated = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShaderAnimated, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShaderAnimated);
@@ -205,13 +221,35 @@ void main()
 
     GLint timeLocAnimated = glGetUniformLocation(shaderProgramAnimated, "uTime");
 
+    // Ones below are for the left-right moving triangle
+    unsigned int vertexShaderMoving = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderMoving, 1, &vertexShaderSourceMOVING, NULL);
+    glCompileShader(vertexShaderMoving);
+
+    unsigned int fragmentShaderMoving = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderMoving, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShaderMoving);
+
+    unsigned int movingShaderProgram = glCreateProgram();
+    glAttachShader(movingShaderProgram, vertexShaderMoving);
+    glAttachShader(movingShaderProgram, fragmentShaderMoving);
+    glLinkProgram(movingShaderProgram);
+
+    GLint translationLoc = glGetUniformLocation(movingShaderProgram, "uTranslation"); // this is incredibly scuffed.
+
+    glDeleteShader(vertexShaderMoving);
+    glDeleteShader(fragmentShaderMoving);
     glDeleteShader(vertexShaderAnimated);
     glDeleteShader(fragmentShaderAnimated);
+
     // Main render loop
     while (!WindowShouldClose())
     {
         auto now = std::chrono::high_resolution_clock::now();
         float tt = std::chrono::duration<float>(now - startTime).count();
+
+        float speed = 1.0f; // speed of translation
+        float xOffset = sin(tt * speed); // oscillates between -1 and 1
 
         // Background color
         float r = 239.0f / 255.0f;
@@ -222,27 +260,25 @@ void main()
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram); // must use program before setting uniforms
-        glUniform1f(timeLoc, tt);
-
-        // Draw white triangle
+        // Draw static white and rainbow triangles
+        glUseProgram(shaderProgram);
         glBindVertexArray(whiteVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        // Draw rainbow triangle
         glBindVertexArray(rainbowVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Draw moving triangle
+        glUseProgram(movingShaderProgram); // MUST use moving shader
+        glUniform2f(translationLoc, xOffset, 0.0f); // yOffset = 0 for horizontal movement
         glBindVertexArray(movingVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        // Draw Color Changing triangle
+        // Draw color-changing triangle
         glUseProgram(shaderProgramAnimated);
-        glUniform1f(timeLocAnimated, tt); // <-- must use timeLocAnimated
+        glUniform1f(timeLocAnimated, tt);
         glBindVertexArray(CCVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
 
         Loop();
     }
@@ -262,8 +298,8 @@ void main()
 
     glDeleteProgram(shaderProgram);
     glDeleteProgram(shaderProgramAnimated);
+    glDeleteProgram(movingShaderProgram);
 
     DestroyWindow();
     return 0;
 }
-
