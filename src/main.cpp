@@ -46,9 +46,9 @@ int main()
     // A rainbow triangle (using vertex colour attributes).
     float rainbowVertices[] = {
         //  position.x, position.y, position.z,   r,   g,   b
-         0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
-         0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - greeen
-         0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom right - blue
+     0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
+     0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - greeen
+     0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom right - blue
     };
 
     unsigned int rainbowVAO, rainbowVBO;
@@ -71,9 +71,9 @@ int main()
     // A triangle who’s colour changes over time (using uniforms).
     float ColorChangingVertices[] = {
         //  position.x, position.y, position.z,   r,   g,   b
-         -0.3f,  0.4f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red (shifted above white triangle)
-         -0.2f,  0.2f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - green
-         -0.4f,  0.2f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom right - blue
+        -0.3f,  0.1f, 0.0f,   1.0f, 0.0f, 0.0f, // top - red
+        -0.2f, -0.1f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left - green
+        -0.4f, -0.1f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom right - blue
     };
 
     unsigned int CCVAO, CCVBO;
